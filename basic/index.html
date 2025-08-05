@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>FoodCircle</title>
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="header-auth" id="auth-links">
+        </div>
+        
+
+    <div class="hero-content">
+      <h1>Welcome to FoodCircle</h1>
+      <p>Bringing surplus food from generous donors to those who need it most.</p>
+    </div>
+  </header>
+
+  <main class="role-grid">
+    <a href="donor.html" class="role-card donate">
+      <img alt="Donate Food">
+      <h3>I Have Food to Donate</h3>
+      <p>Share your extra meals and help end hunger in your community.</p>
+    </a>
+
+    <a href="volunteer.html" class="role-card volunteer">
+      <img alt="Volunteer Delivery">
+      <h3>I'd Like to Deliver</h3>
+      <p>Become a Food Runner and earn rewards while making a difference.</p>
+    </a>
+
+    <a href="recipient.html" class="role-card recipient">
+      <img alt="Need Food">
+      <h3>I Need Food</h3>
+      <p>Find scheduled drop‑offs and get the meals you deserve.</p>
+    </a>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 FoodCircle • Built with ♥ by Divya</p>
+  </footer>
+
+ 
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const authLinksContainer = document.getElementById('auth-links');
+        // If the header element doesn't exist on the page, do nothing.
+        if (!authLinksContainer) return; 
+
+        const currentUser = localStorage.getItem('currentUser');
+
+        if (currentUser) {
+            // If a user IS logged in, show their name and a logout button
+            authLinksContainer.innerHTML = `
+                <span>Welcome, ${currentUser}!</span>
+                <button id="logoutButton">Logout</button>
+            `;
+
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                localStorage.removeItem('currentUser'); // Log the user out
+                window.location.href = 'index.html';    // Go to homepage after logout
+            });
+        } else {
+            // If a user IS NOT logged in, show the login and signup links
+            authLinksContainer.innerHTML = `
+                <a href="login.html">Login</a>
+                <a href="signup.html">Sign Up</a>
+            `;
+        }
+    });
+</script>
+</script>
+</body>
+</html>

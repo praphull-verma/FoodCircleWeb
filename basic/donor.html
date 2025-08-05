@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Donate Food – FoodCircle</title>
+  <link rel="stylesheet" href="styles/styles.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+
+    .banner {
+      background: url('images/donate-banner.jpg') center/cover no-repeat;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .banner h1 {
+      font-size: 2.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+
+    #auth-links {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1rem;
+    }
+
+    #auth-links a, #auth-links button {
+      color: white;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.3rem 0.7rem;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: -100px auto 2rem;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #0077cc;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    input, textarea {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #0077cc;
+      outline: none;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      background: #0077cc;
+      color: white;
+      font-size: 1.1rem;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    @media (max-width: 600px) {
+      .banner h1 {
+        font-size: 2rem;
+      }
+      .form-container {
+        margin: -80px auto 2rem;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="banner">
+    <h1>Donate Your Food</h1>
+    <div id="auth-links"></div>
+  </header>
+
+  <section class="form-container">
+    <h2>Create a Pickup Request</h2>
+    <form id="pickupForm">
+      <div class="form-group">
+        <label for="description">Food Description</label>
+        <textarea id="description" name="description" rows="3" placeholder="e.g. 5 veg meals with rice and curry" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Quantity (number of meals/items)</label>
+        <input id="quantity" type="number" name="quantity" min="1" required>
+      </div>
+      <div class="form-group">
+        <label for="address">Pickup Address</label>
+        <input id="address" type="text" name="address" placeholder="Enter pickup location" required>
+      </div>
+      <button type="submit">Submit Request</button>
+    </form>
+  </section>
+
+  <!-- Updated EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // Initialize EmailJS
+    emailjs.init({
+      publicKey: "d_SqVhsxFcbHoXjML" // Replace with your actual Public Key
+    });
+
+    // Handle Auth Links
+    document.addEventListener('DOMContentLoaded', () => {
+      const authLinks = document.getElementById('auth-links');
+      const currentUser = localStorage.getItem('currentUser');
+
+      if (authLinks) {
+        if (currentUser) {
+          authLinks.innerHTML = `
+            <span>Welcome, ${currentUser}!</span>
+            <button id="logoutButton">Logout</button>
+          `;
+          document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('currentUser');
+            window.location.reload();
+          });
+        } else {
+          authLinks.innerHTML = `
+            <a href="login.html">Login</a>
+            <a href="signup.html">Sign Up</a>
+          `;
+        }
+      }
+    });
+
+    // Handle Form Submission with EmailJS
+    document.addEventListener('DOMContentLoaded', () => {
+      const pickupForm = document.getElementById('pickupForm');
+
+      if (pickupForm) {
+        pickupForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const description = document.getElementById('description').value.trim();
+          const quantity = document.getElementById('quantity').value;
+          const address = document.getElementById('address').value.trim();
+
+          if (!description || !quantity || !address) {
+            alert('Please fill out all fields.');
+            return;
+          }
+
+          // Send email using EmailJS
+          emailjs.send('service_q9x4bgi', 'template_h8x0xwp', {
+            description: description,
+            quantity: quantity,
+            address: address
+          }).then(() => {
+            alert('Thank you! Your donation request has been sent via email.');
+            pickupForm.reset();
+          }).catch((error) => {
+            console.error('Error sending email:', error);
+            alert('Failed to send email. Please try again.');
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

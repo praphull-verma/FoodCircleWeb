@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Food - FoodCircle</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <header class="rec-banner">
+        <div class="header-auth" id="auth-links"></div>
+        <h1>Find Food Near You</h1>
+        <p>Available food distribution points in Pune</p>
+    </header>
+
+    <main class="rec-container">
+        <div class="filter-section">
+            <input
+              type="text"
+              id="searchLocation"
+              placeholder="Search by area or landmark..."
+              onkeyup="filterLocations()"
+              aria-label="Search food locations"
+            />
+        </div>
+
+        <h2>Food Distribution Points in Pune</h2>
+
+        <div class="rec-list" id="locationList">
+            <div class="rec-card">
+                <h3>Shivaji Nagar Bus Stand</h3>
+                <p>Hot meals available daily from 12 PM - 3 PM.</p>
+                <button onclick="openMap('Shivaji Nagar Bus Stand, Pune')">Get Directions</button>
+            </div>
+            <div class="rec-card">
+                <h3>Swargate Station</h3>
+                <p>Free food packets distributed every evening at 6 PM.</p>
+                <button onclick="openMap('Swargate Bus Station, Pune')">Get Directions</button>
+            </div>
+            <div class="rec-card">
+                <h3>Kothrud Depot</h3>
+                <p>Vegetable khichdi and chapati from 1 PM - 2:30 PM.</p>
+                <button onclick="openMap('Kothrud Bus Depot, Pune')">Get Directions</button>
+            </div>
+            <div class="rec-card">
+                <h3>Viman Nagar Community Hall</h3>
+                <p>Food drive on Tuesdays and Fridays, 5 PM - 7 PM.</p>
+                <button onclick="openMap('Viman Nagar Community Hall, Pune')">Get Directions</button>
+            </div>
+            <div class="rec-card">
+                <h3>Koregaon Park</h3>
+                <p>Distribution near German Bakery area, 12 PM daily.</p>
+                <button onclick="openMap('Koregaon Park, Pune')">Get Directions</button>
+            </div>
+            <div class="rec-card">
+                <h3>Hadapsar Industrial Area</h3>
+                <p>Food trucks serve fresh meals from 6 PM - 9 PM.</p>
+                <button onclick="openMap('Hadapsar Industrial Area, Pune')">Get Directions</button>
+            </div>
+        </div>
+
+        <section class="request-food-section" style="margin-top: 3rem; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h2 style="color: #0077cc; text-align:center;">Request Food Online</h2>
+            <p style="text-align:center;">If you need food delivered, please fill out the form below.</p>
+
+            <form id="requestFoodForm">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="requesterName" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Name</label>
+                    <input type="text" id="requesterName" name="requesterName" placeholder="Your full name" required style="width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="contactInfo" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Contact Info</label>
+                    <input type="tel" id="contactInfo" name="contactInfo" placeholder="Phone or email" required style="width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="location" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Address or landmark" required style="width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;" />
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="quantity" style="font-weight: 600; display: block; margin-bottom: 0.3rem;">Quantity Needed (approx.)</label>
+                    <input type="number" id="quantity" name="quantity" min="1" placeholder="Number of meals/packets" required style="width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 6px;" />
+                </div>
+                <button type="submit">Submit Request</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 FoodCircle • Together, we can end hunger</p>
+    </footer>
+
+    <script>
+        function filterLocations() {
+            const input = document.getElementById('searchLocation').value.toLowerCase();
+            const cards = document.querySelectorAll('#locationList .rec-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        function openMap(location) {
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+            window.open(url, '_blank');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const authLinksContainer = document.getElementById('auth-links');
+            if (!authLinksContainer) return;
+
+            const currentUser = localStorage.getItem('currentUser');
+
+            if (currentUser) {
+                authLinksContainer.innerHTML = `
+                    <span>Welcome, ${currentUser}!</span>
+                    <button id="logoutButton">Logout</button>
+                `;
+                document.getElementById('logoutButton').addEventListener('click', () => {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                });
+            } else {
+                authLinksContainer.innerHTML = `
+                    <a href="login.html">Login</a>
+                    <a href="signup.html">Sign Up</a>
+                `;
+            }
+        });
+
+        // EmailJS SDK and initialization
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+      emailjs.init({
+        publicKey: "d_SqVhsxFcbHoXjML" // Your EmailJS public key
+      });
+
+      // Override form submit handler to send email
+      document.getElementById('requestFoodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Get form values
+        const requesterName = this.requesterName.value.trim();
+        const contactInfo = this.contactInfo.value.trim();
+        const location = this.location.value.trim();
+        const quantity = this.quantity.value.trim();
+
+        if (!requesterName || !contactInfo || !location || !quantity) {
+          alert('Please fill out all fields.');
+          return;
+        }
+
+        const templateParams = {
+          requester_name: requesterName,
+          contact_info: contactInfo,
+          location: location,
+          quantity: quantity
+        };
+
+        emailjs.send('service_q9x4bgi', 'template_3eido2d', templateParams)
+          .then(() => {
+            alert('Thank you for your request! We will get back to you soon.');
+            this.reset();
+          })
+          .catch((error) => {
+            console.error('EmailJS error:', error);
+            alert('Failed to send your request via email. Please try again later.');
+          });
+      });
+    </script>
+</body>
+</html>
