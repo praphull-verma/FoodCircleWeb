@@ -8,11 +8,43 @@
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
     crossorigin=""
   />
   <style>
-    /* These styles are specific to the map layout */
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #f8f9fa;
+      color: #333;
+    }
+    header.vol-banner {
+      background: url('https://images.unsplash.com/photo-1599059813005-11265ba4b4ce?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat;
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+    header.vol-banner h1 {
+      font-size: 2.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+    #auth-links {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    #auth-links a, #auth-links button {
+      color: white;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 0.3rem 0.7rem;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      margin-left: 5px;
+    }
     main.vol-container {
       max-width: 1200px;
       margin: 2rem auto;
@@ -20,41 +52,87 @@
       gap: 2rem;
       flex-wrap: wrap;
     }
-    .pickup-list-container {
-      flex: 1 1 350px; /* Flex properties for side-by-side layout */
+    .pickup-list-container, .volunteer-signup {
+      flex: 1 1 350px;
       background: #fff;
       padding: 1rem;
       border-radius: 10px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      max-height: 600px;
-      overflow-y: auto;
     }
     #map {
-      flex: 2 1 600px; /* Map takes more space */
+      flex: 2 1 600px;
       height: 600px;
       border-radius: 10px;
       box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     }
     @media(max-width: 800px) {
       main.vol-container { flex-direction: column; }
-      #map { height: 400px; order: -1; } /* Show map on top on mobile */
-      .pickup-list-container { max-height: none; }
+      #map { height: 400px; order: -1; }
+    }
+    .form-group {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    input {
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background: #0077cc;
+      color: white;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .volunteer-list {
+      margin-top: 1rem;
+    }
+    .volunteer-item {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
   <header class="vol-banner">
-    <div class="header-auth" id="auth-links"></div>
     <h1>Volunteer with FoodCircle</h1>
     <p>Pick up food donations and deliver them to those in need.</p>
+    <div id="auth-links"></div>
   </header>
 
   <main class="vol-container">
-    <div class="pickup-list-container">
-      <h2>Available Pickup Locations in Pune</h2>
-      <div class="pickup-list" id="pickupList">
+    <div class="volunteer-signup">
+      <h2>Become a Volunteer</h2>
+      <form id="volunteerForm">
+        <div class="form-group">
+          <label for="volunteerName">Name</label>
+          <input type="text" id="volunteerName" required>
         </div>
+        <div class="form-group">
+          <label for="volunteerContact">Contact Info</label>
+          <input type="text" id="volunteerContact" required>
+        </div>
+        <div class="form-group">
+          <label for="volunteerArea">Preferred Area</label>
+          <input type="text" id="volunteerArea" required>
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+      <h3>Registered Volunteers</h3>
+      <div class="volunteer-list" id="volunteerList"></div>
     </div>
+
+    <div class="pickup-list-container">
+      <h2>Available Pickup Locations</h2>
+      <div id="pickupList"></div>
+    </div>
+
     <div id="map"></div>
   </main>
 
@@ -62,13 +140,9 @@
     <p>© 2025 FoodCircle • Together, we can end hunger</p>
   </footer>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <script>
-    // --- MAP AND LOCATION SCRIPT ---
+    // --- MAP ---
     const locations = [
       { title: 'Shivaji Nagar Market', description: 'Pickup fresh meals from 11 AM - 1 PM.', address: 'Shivaji Nagar Market, Pune', lat: 18.5204, lng: 73.8567 },
       { title: 'Swargate Bus Stand', description: 'Food packets available from 4 PM - 6 PM.', address: 'Swargate Bus Stand, Pune', lat: 18.5024, lng: 73.8597 },
@@ -77,18 +151,14 @@
       { title: 'Hadapsar Industrial Area', description: 'Evening pickups from 5 PM - 7 PM.', address: 'Hadapsar Industrial Area, Pune', lat: 18.5031, lng: 73.9316 }
     ];
     const map = L.map('map').setView([18.5204, 73.8567], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     const pickupList = document.getElementById('pickupList');
     locations.forEach(loc => {
       const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(loc.address)}`;
-      // Add marker to map
       L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(
         `<b>${loc.title}</b><br>${loc.description}<br><a href="${mapsUrl}" target="_blank">Get Directions</a>`
       );
-      // Add card to list
       const card = document.createElement('div');
       card.className = 'pickup-card';
       card.innerHTML = `
@@ -100,29 +170,62 @@
       `;
       pickupList.appendChild(card);
     });
-  </script>
 
-  <script>
+    // --- VOLUNTEER FORM STORAGE ---
+    const volunteerForm = document.getElementById('volunteerForm');
+    const volunteerList = document.getElementById('volunteerList');
+
+    function loadVolunteers() {
+      const volunteers = JSON.parse(localStorage.getItem('volunteers') || '[]');
+      volunteerList.innerHTML = '';
+      volunteers.forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'volunteer-item';
+        div.textContent = `${v.name} - ${v.contact} (${v.area})`;
+        volunteerList.appendChild(div);
+      });
+    }
+
+    volunteerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('volunteerName').value.trim();
+      const contact = document.getElementById('volunteerContact').value.trim();
+      const area = document.getElementById('volunteerArea').value.trim();
+
+      if (!name || !contact || !area) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      const volunteers = JSON.parse(localStorage.getItem('volunteers') || '[]');
+      volunteers.push({ name, contact, area });
+      localStorage.setItem('volunteers', JSON.stringify(volunteers));
+
+      volunteerForm.reset();
+      loadVolunteers();
+    });
+
+    loadVolunteers();
+
+    // --- AUTH LINKS ---
     document.addEventListener('DOMContentLoaded', () => {
-        const authLinksContainer = document.getElementById('auth-links');
-        if (!authLinksContainer) return;
-
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            authLinksContainer.innerHTML = `
-                <span>Welcome, ${currentUser}!</span>
-                <button id="logoutButton">Logout</button>
-            `;
-            document.getElementById('logoutButton').addEventListener('click', () => {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'index.html';
-            });
-        } else {
-            authLinksContainer.innerHTML = `
-                <a href="login.html">Login</a>
-                <a href="signup.html">Sign Up</a>
-            `;
-        }
+      const authLinks = document.getElementById('auth-links');
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        authLinks.innerHTML = `
+          <span>Welcome, ${currentUser}!</span>
+          <button id="logoutButton">Logout</button>
+        `;
+        document.getElementById('logoutButton').addEventListener('click', () => {
+          localStorage.removeItem('currentUser');
+          window.location.href = 'index.html';
+        });
+      } else {
+        authLinks.innerHTML = `
+          <a href="login.html">Login</a>
+          <a href="signup.html">Sign Up</a>
+        `;
+      }
     });
   </script>
 </body>

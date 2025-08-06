@@ -139,6 +139,11 @@
         <label for="address">Pickup Address</label>
         <input id="address" type="text" name="address" placeholder="Enter pickup location" required>
       </div>
+      <!-- NEW CONTACT FIELD -->
+      <div class="form-group">
+        <label for="contact">Contact Info</label>
+        <input id="contact" type="text" name="contact" placeholder="Phone or Email" required>
+      </div>
       <button type="submit">Submit Request</button>
     </form>
   </section>
@@ -148,7 +153,7 @@
   <script>
     // Initialize EmailJS
     emailjs.init({
-      publicKey: "d_SqVhsxFcbHoXjML" // Replace with your actual Public Key
+      publicKey: "d_SqVhsxFcbHoXjML"
     });
 
     // Handle Auth Links
@@ -186,8 +191,9 @@
           const description = document.getElementById('description').value.trim();
           const quantity = document.getElementById('quantity').value;
           const address = document.getElementById('address').value.trim();
+          const contact = document.getElementById('contact').value.trim();
 
-          if (!description || !quantity || !address) {
+          if (!description || !quantity || !address || !contact) {
             alert('Please fill out all fields.');
             return;
           }
@@ -196,7 +202,8 @@
           emailjs.send('service_q9x4bgi', 'template_h8x0xwp', {
             description: description,
             quantity: quantity,
-            address: address
+            address: address,
+            contact: contact
           }).then(() => {
             alert('Thank you! Your donation request has been sent via email.');
             pickupForm.reset();
