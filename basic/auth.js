@@ -40,16 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (user) {
                 localStorage.setItem('currentUser', user.username);
                 
-                // *** REDIRECT BASED ON ROLE ***
                 switch (user.role) {
                     case 'donor':
-                        window.location.href = 'donor.html';
+                        window.location.href = 'index.html';
                         break;
                     case 'volunteer':
-                        window.location.href = 'volunteer.html';
+                        window.location.href = 'index.html';
                         break;
                     case 'recipient':
-                        window.location.href = 'recipient.html';
+                        window.location.href = 'index.html';
                         break;
                     default:
                         window.location.href = 'index.html'; // Fallback to homepage
